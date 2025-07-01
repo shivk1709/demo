@@ -14,12 +14,12 @@ services:
 
   spring-app:
     build: .
-    image: shivksh/demo-projects:04
+    image: shivksh/demo-projects:05
     container_name: spring-app
     depends_on:
       - postgres
     ports:
-      - "8080:8081"
+      - "8081:8081"
     environment:
 #      SPRING_PROFILES_ACTIVE: docker
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
