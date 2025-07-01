@@ -1,7 +1,7 @@
 FROM openjdk:17-jdk-slim
 
-WORKDIR /app
+WORKDIR /application
 
-COPY target/demo-0.0.1-SNAPSHOT.jar app.jar
+COPY target/demo-0.0.1-SNAPSHOT.jar application.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "application.jar"]
