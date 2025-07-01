@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-db-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spring-db-app
+  template:
+    metadata:
+      labels:
+        app: spring-db-app
+    spec:
+      containers:
+        - name: spring-db-app
+          image: shivksh/demo-projects:04
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: FAIL_TIMEOUT
+        - name: postgres
+          image: postgres:17
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spring-db-secret
+                  key: POSTGRES_PASSWORD
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-spring-db-app
+spec:
+  selector:
+    app: spring-db-app
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

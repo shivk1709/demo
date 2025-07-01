@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgre-pod-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgre-pod-app
+      tier: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgre-pod-app
+        tier: database
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-vol
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: spring-db-secret
+                  key: POSTGRES_PASSWORD
+      volumes:
+        - name: postgres-vol
+          persistentVolumeClaim:
+            claimName: host-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-postgre-pod-app
+spec:
+  selector:
+    app: postgre-pod-app
+    tier: database
+  ports:
+    - name: tcp
+      port: 5432
+      targetPort: 5432

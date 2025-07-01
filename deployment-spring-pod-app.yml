@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-pod-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: spring-pod-app
+  template:
+    metadata:
+      labels:
+        app: spring-pod-app
+    spec:
+      containers:
+        - name: spring-pod-app
+          image: shivksh/demo-projects:04
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_HIKARI_INITIALIZATION_FAIL_TIMEOUT
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: FAIL_TIMEOUT
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              valueFrom:
+                configMapKeyRef:
+                  name: spring-variables
+                  key: SPRING_JPA_HIBERNATE_DDL_AUTO
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-spring-pod-app
+spec:
+  selector:
+    app: spring-pod-app
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
